@@ -10,8 +10,18 @@ const productCtrl = {
                 .searching()
                 .filtering()
 
-            const products = await features.query
-            return res.status(200).json(products)
+            // Thực hiện song song 2 nhiệm vụ
+            const result = await Promise.allSettled([
+                features.query,
+                // đếm trong Products có bao nhiêu sản phẩm
+                Products.countDocuments()
+            ])
+
+            const products = result[0].status === 'fulfilled' ? result[0].value : [];
+            const count = result[1].status === 'fulfilled' ? result[1].value : 0;
+
+
+            return res.status(200).json({ products, count })
         } catch (err) {
             return res.status(500).json({ msg: err.message })
         }
