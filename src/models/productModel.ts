@@ -24,7 +24,11 @@ const productSchema = new mongoose.Schema({
 }, {
     timestamps: true
 })
+// Tạo index để sử dụng chứ năng tìm kiếm ở phần features
+productSchema.index({ title: 'text', price: 'text' })
 
 const Products = mongoose.model('Products', productSchema)
+
+Products.createIndexes({ title: 'text', price: 'text' })
 
 export default Products

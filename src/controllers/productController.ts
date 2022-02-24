@@ -1,20 +1,24 @@
 import Products from "../models/productModel"
+import { APIfeatures } from "../lib/features"
 
 const productCtrl = {
     getProducts: async (req, res) => {
         try {
-            const products = await Products.find()
+            const features = new APIfeatures(Products.find(), req.query)
+                .paginating()
+                .sorting()
+                .searching()
+                .filtering()
 
-            return res.status(200).json({
-                products
-            })
+            const products = await features.query
+            return res.status(200).json(products)
         } catch (err) {
             return res.status(500).json({ msg: err.message })
         }
     },
     getProductById: async (req, res) => {
         try {
-            const product = await Products.findOne({ _id: req.params.id })
+            const product = await Products.findById(req.params.id)
             if (!product) return res.status(404).json({ msg: "This product does not exist." })
             return res.status(200).json(product)
         } catch (err) {
@@ -24,7 +28,7 @@ const productCtrl = {
     createProduct: async (req, res) => {
         try {
             const { title, image, description, category, price } = req.body;
-        
+
             const newProduct = new Products({
                 title, image, description, category, price
             })
